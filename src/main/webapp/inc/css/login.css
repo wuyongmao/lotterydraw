@@ -1,0 +1,80 @@
+body{
+	width: 100%;
+	min-width: 1349px;
+	height:100%;
+	min-height: 637px;
+	position: relative;
+	background:radial-gradient(white,#E9E9E9);
+}
+
+#dengLu{
+	opacity:0.8;
+	width:450px;
+	height: 500px;
+	background-color: white;
+	position: absolute;
+	top:80px;
+	left:50%;
+	margin-left:-225px;
+	border-radius: 5px;
+	padding:10px;
+	box-shadow:0 0 9px #888888;
+}
+#loginLogo{
+	width:430px;
+	text-align:center;
+	padding-bottom:5px;
+	border-bottom:3px solid #5BC0DE;
+}
+#loginLogo img{
+	width:80px;
+	height:80px;
+}
+#loginTitle{
+	width:390px;
+	position: absolute;
+	top:125px;
+	left:50%;
+	margin-left:-195px;
+	font-size:20px;
+	color: #ccc;
+	border-bottom:1px solid #ccc;
+	padding-bottom:10px;
+	font-weight:bold;
+}
+
+#shuRuU{
+	position:absolute;
+	top:215px;
+	left:50%;
+	margin-left:-195px;
+}
+#username,#password{
+	width:350px;
+	height:45px;
+	line-height:45px;
+}
+#shuRuP{
+	position:absolute;
+	top:290px;
+	left:50%;
+	margin-left:-195px;
+}
+#loginButton{
+	font-size:25px;
+	width:390px;
+	height:45px;
+	position:absolute;
+	top:375px;
+	left:50%;
+	margin-left:-195px;
+}
+#beiAH{
+	font-size:5px;
+	width:390px;
+	position:absolute;
+	bottom:25px;
+	left:50%;
+	margin-left:-195px;
+	text-align:center;
+}

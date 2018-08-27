@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<title>年度抽奖系统</title>
+  <link rel="bookmark" href="favicon.ico"/> 
+  <base target="mainFrame" />
+  <meta content="IE=edge" http-equiv="X-UA-Compatible" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /> 
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type" /> 
+  <script type="text/javascript" src="inc/plugins/jquery/1.9.1/jquery-1.9.1.js"></script> 
+<link rel="icon" href="inc/images/cylogo.png" type="image/png">
+  <link rel="stylesheet" type="text/css" href="inc/plugins/bootstrap/3.3.5/css/bootstrap.min.css" media="all" /> 
+  <link rel="stylesheet" type="text/css" href="inc/plugins/bootstrap/3.3.5/css/bootstrap-switch.css" media="all" /> 
+  <link rel="stylesheet" type="text/css" href="inc/plugins/bootstrap/3.3.5/css/bootstrapValidator.css" media="all" /> 
+  <link rel="stylesheet" type="text/css" href="inc/plugins/bootstrap/3.3.5/css/bootstrap-notify.css" media="all" />
+  
+  <script type="text/javascript" src="inc/plugins/bootstrap/3.3.5/js/bootstrap.min.js"></script> 
+  <script type="text/javascript" src="inc/plugins/bootstrap/3.3.5/js/bootstrap-switch.min.js"></script>   
+  <script type="text/javascript"  src="inc/plugins/bootstrap/3.3.5/js/bootstrapValidator.js"></script> 
+  <script type="text/javascript" src="inc/plugins/bootstrap/3.3.5/js/bootstrap-notify.js"></script>
+  <script type="text/javascript" src="inc/js/menuJson.js"></script>
+   
+  <!--时间插件-->
+   <script type="text/javascript" src="inc/plugins/jquery.tmpl/1.4.2/jquery.tmpl.min.js"></script>
+     
+  <!--后台UI--> 
+  <script type="text/javascript" src="inc/skin/manager/4.6.0/js/ms.manager.js"></script>
+  <script type="text/javascript" src="inc/skin/manager/4.6.0/js/ms.web.js"></script>
+  
+  <!--easyUI-->
+  <link rel="stylesheet" type="text/css" href="inc/plugins/jquery.easyui/1.5/themes/gray/easyui.css">
+  <link rel="stylesheet" type="text/css" href="inc/plugins/jquery.easyui/1.5/themes/icon.css">
+  <script type="text/javascript" src="inc/plugins/jquery.easyui/1.5/jquery.easyui.min.js"></script>
+
+  <!--bootstrap=table-->
+  <link rel="stylesheet" href="inc/plugins/bootstrap-table/1.11.1/bootstrap-table.min.css">
+  <link rel="stylesheet" href="inc/plugins/bootstrap-table/1.11.1/extensions/tree-column/bootstrap-table-tree-column.css">
+  <script src="inc/plugins/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
+  <script src="inc/plugins/bootstrap-table/1.11.1/extensions/tree-column/bootstrap-table-tree-column.min.js"></script>
+  <script src="inc/plugins//bootstrap-table/1.11.1/locale/bootstrap-table-zh-CN.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="inc/skin/manager/4.6.0/css/iconfont.css"/>
+  <link rel="stylesheet" type="text/css" href="inc/skin/manager/4.6.0/css/ms.manager.min.css" media="all" />
+   
+</head>
+<script type="text/javascript">
+    $(function(){
+    	var $useredit=$("#useredit"),
+    	$vhome=$("#vhome"),
+     	$alert2=$("#alert2"),
+    	$edituserpasswd=$("#edituserpasswd")	 ,$modal = $('#editLoginPassword').modal({
+    	 	show : false
+    	 })
+    	
+    	var loginuser={};
+      
+     
+     $.ajax({
+				url : "user/getlogin"  ,
+			   dataType : 'json',
+                 async : false,
+                 success : function(data) {
+             		loginuser=data;
+				},
+				error : function() {
+  	        } 
+				
+				
+		
+}); 
+       $useredit.text( loginuser.zx02 );
+       $("#zx01").val(loginuser.zx01);
+       $("#password").val(loginuser.password);
+     //	//console.info(loginuser);
+    	
+    	
+  		var menuJson =  initcolumn();
+		//console.log(menuJson);
+		$('.dropdown-toggle').dropdown();
+		//加载头部菜单
+		manager.topMenu.initMenu(menuJson);
+		//点击头部菜单从左侧显示当前菜单子菜单
+		//$(".ms-menu-list").delegate(".ms-menu-detail", "click", function() {
+			//manager.topMenu.showChildMenu($(this), menuJson);
+		//});
+		//获取管理员帐号
+		$("#editLoginPassword").click(
+			function() {
+						 $("#zx01") .val(loginuser.zx01);
+						 $("#password") .val(loginuser.password);
+		});
+		//修改密码
+		$("#editLoginPasswordButton").click(
+				function() {
+					var vobj = $("#updatePasswordFrom").data(
+							'bootstrapValidator').validate();
+					if (vobj.isValid()) {
+						var edituser={ZX01:"",PASSWORD:""}     
+						edituser.ZX01=loginuser.zx01;
+						edituser.PASSWORD=$("#newManagerPassword").val();
+						//console.info(edituser);
+						$.ajax({
+							type : "POST",
+							timeout : 10000, // 超时时间设置，单位毫秒 1000ms=1s
+							dataType : 'json', // 返回的数据格式
+							data : edituser,
+			                 async : false,
+
+							url : "user/updateuser",
+							success : function(data) {
+ 
+								if (data.code == "100") {
+									showAlert2("修改成功","success");
+									
+									$modal.modal('hide');
+ 								} else {
+ 									showAlert2("失败","danger");
+ 									$modal.modal('hide');
+ 								}
+							}
+ 
+						
+						});
+					} else {
+							showAlert2("表单验证失败","danger");
+					
+					}
+
+				});
+
+		//退出系统
+		$("#loginOutBtn").click(function() {
+			$(this).request({
+				func : function(data) {
+				//	location.reload();
+ 				
+				}
+			});
+		});
+
+
+		function showAlert2(title, type) {
+			$alert2.attr('class', 'alert alert-' + type || 'success').html(
+					'<i class="glyphicon glyphicon-check"></i> ' + title).show();
+			setTimeout(function() {
+				$alert2.hide();
+			}, 3000);
+		};
+		//退出系统
+		$edituserpasswd.click(function() {
+			$modal.modal('show');
+			  
+		});
+		
+		$(".ms-menu-child li a").each(
+				function() {
+					var tag = "?";
+					if ($(this).data("url").indexOf("?") > 0) {
+						tag = "&";
+					}
+					$(this).data(
+						"url",
+						"" + $(this).data("url") + tag
+								+ "modelId=" + $(this).data("id")
+								+ "&modelTitle="
+								+ encodeURI($(this).data("title")));
+		});
+		//强制开启号码查询页
+		$(".ms-menu,.ms-menu-child a[data-id=12]").click();
+		 
+	});
+    
+      
+    
+    
+</script>
+
+<body class="over-hide theme-index" >
+    <!--顶部开始 -->
+    <div class="ms-top">
+        <!--头部LOGO-->
+        <div style="float:left;margin:10px 0 0 20px;"><img src="inc/img/scanLogo.png" style="width:45px; height:35px;">
+        <font style="position:relative;top:8px;margin-left:10px;" color="white" size="4">年度抽奖系统</font></div>
+        <!--头部一级菜单-->
+        <div class="ms-top-menu">
+            <div class="menu-default">
+                <span class="glyphicon glyphicon-menu-hamburger openMenu"></span>
+            </div>
+        </div>
+        <!--头部用户信息/进入MStore-->
+        <div class="ms-top-user">
+            <div class="dropdown" style="margin-right:20px">
+            	<table  style="text-align:center;color:white">
+            		<tr>
+            			<td width="60px"><div id="edituserpasswd" ><span class="glyphicon glyphicon-user" style="font-size:12px"></span><div id="useredit" style="font-size:10px">user</div></div></td>
+            			<td style="padding:0;"><img src="inc/img/tdBorder.jpg"></td>
+            			<td width="60px"><div><a href="lotterydraw.html" target="_top"> <span class="glyphicon glyphicon-home" style="font-size:12px"></span><div id="vhome"  style="font-size:10px">首页</div></a></div></td>
+            			<td width="60px"><div><span class="glyphicon glyphicon-refresh" style="font-size:12px"></span><div style="font-size:10px">刷新</div></div></td>
+            			<td style="padding:0;"><img src="inc/img/tdBorder.jpg"></td>
+            			<td width="60px"><div><a href="logout" target="_top"> <span class="glyphicon glyphicon-off" style="font-size:12px">退出</span> </a></div></td>
+            		</tr>
+            	</table>
+            </div>
+        </div>
+    </div>
+
+    <script id="ms-menu-tmpl" type="text/x-jquery-tmpl">
+    {{if modelModelId==0}}
+        <div class="ms-menu-parent" data-model-id="${modelId}">
+            <div class="ms-menu-parent-header">
+                <div class="ms-menu-parent-title" data-flag="true">
+                    <i class="icon iconfont icon-logo"><span class="${modelIcon}" style="font-size:10px"></span></i>
+                    ${modelTitle}    
+                </div>
+                <!--<span class="closeMenu">×</span>-->
+            </div>
+            <ul class="ms-menu-child child-list${modelId}" id="tab-tools">
+            </ul>
+        </div>
+    {{/if}}
+    </script>
+    <script id="ms-menu-child-tmpl" type="text/x-jquery-tmpl">
+        <li><a style="cursor: pointer;padding-left:7px"  data-title='${modelTitle}' data-url='${modelUrl}' data-id='${modelId}'><!--span class="caret"></span-->${modelTitle}</a></li>
+    </script>
+    <!--左边菜单开始-->
+	<div class="ms-menu-div">
+        <div class="slideMenu">
+            <span class="icon iconfont icon-open" style="display: none;">&#xe823;</span>
+            <span class="icon iconfont icon-close">&#xe80d;</span>
+        </div>
+    </div>
+    <div class="ms-menu">
+        <!-- <div class="ms-menu-none"></div> -->
+        <!--span class="slideMenu glyphicon glyphicon-tasks"></span-->
+    </div>
+    <!--左边菜单结束-->
+
+    <!--右边开始-->
+    <div class="ms-content">
+        <div class="wellcome">&nbsp;<!-- <img src="inc/img/welcome.png"/> --></div>
+        <div class="easyui-tabs">
+        </div>
+    </div>
+    <!--右边结束-->
+    <!--修改登录密码模态框-->
+	<div class="modal fade editLoginPassword" id="editLoginPassword" >
+	  <div class="modal-dialog"  style="width:450px;height:150px;;">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	        <h4 class="modal-title" id="editLoginPasswordTitle">
+	       	修改密码
+	        </h4>
+	      </div>
+	      <div class="modal-body" style="">
+			<form role="form" method="post"   target="_self"
+			 id="updatePasswordFrom" name="updatePasswordFrom" class="form-horizontal" style="display:none; width:100%; background-color: white;" name="updatePasswordFrom">
+			<input type="hidden" name="redirect"/>
+			<div class="form-group ms-form-group">	
+				<label for="managerName"   class="col-sm-2 control-label ">
+				账号:
+				</label>
+				<div class="col-sm-9 ms-from-group-input ms-form-input"  style="width:280px;">		<input type="text"  autocomplete="off"	 id="zx01"	 readonly="readonly"				 name="zx01" class="form-control" title="zx01" name="managerName"		required="true"		data-bv-notempty-message="必填项目"		/>	</div>
+			</div>
+			<div class="form-group ms-form-group">	
+				<label for="oldManagerPassword"   class="col-sm-2 control-label ">
+				旧密码:
+				</label>
+				<div  class="ms-form-control ms-from-group-input col-sm-9"  style="width:280px">		<input type="password" autocomplete="off" id="password"	 name="password" class="form-control" title="password" name="password"		required="true"		data-bv-notempty-message="必填项目"		/>
+				</div>
+			</div>
+			<div class="form-group ms-form-group">	
+				<label for="newManagerPassword"   class="col-sm-2 control-label ">
+				新密码:
+				</label>
+				<div  class="ms-form-control ms-from-group-input col-sm-9"  style="width:280px">		<input type="password" autocomplete="off"						id="newManagerPassword"				 name="newManagerPassword" class="form-control" title="managerPassword" name="newManagerPassword"		required="true"		data-bv-notempty-message="必填项目"		/>
+				</div>
+			</div>
+			<div>
+								<span id="alert2"> </span>
+			 
+			</div>
+			
+			<script>
+				$(function() {
+							var id = "updatePasswordFrom";
+							
+							$('#'+id).fadeIn("slow");
+							$('#'+id).bootstrapValidator({
+							        feedbackIcons: {
+							            valid: 'glyphicon glyphicon-ok',
+							            invalid: 'glyphicon glyphicon-remove',
+							            validating: 'glyphicon glyphicon-refresh'
+							        }
+									
+							});	
+							
+				})
+				
+
+	
+			</script>
+			</form>
+	      </div>
+	      <div class="modal-footer">
+			<button type="button"  class="btn btn-success" id="editLoginPasswordButton"	>更新密码</button>
+		  </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+	<script>
+		$(function(){
+			$('#editLoginPassword').on('hide.bs.modal', function (event) {
+			  if ($("#editLoginPassword form").length>0) {
+			  	$("#editLoginPassword form").data('bootstrapValidator').resetForm(true);
+			  	$("#editLoginPassword form")[0].reset();
+			  }
+			})	
+		});
+		
+	</script>
+	
+	<div class="modal fade loginOut" id="loginOut" >
+	  <div class="modal-dialog"  style="width:450px;height:150px;;">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	        <h4 class="modal-title" id="loginOutTitle">退出提示!</h4>
+	      </div>
+	      <div class="modal-body" style="">
+		  		确认退出？？
+	      </div>
+	       <div class="modal-footer">
+	<button type="button" class="btn btn-primary"	 data-toggle="tooltip"		 data-target="bottom"	 id="loginOutBtn"	 data-ajax-url="/loginOut.do"	 data-placement="bottom"	>
+	确认退出
+	</button>	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+	<script>
+		$(function(){
+			$('#loginOut').on('hide.bs.modal', function (event) {
+			  if ($("#loginOut form").length>0) {
+			  	$("#loginOut form").data('bootstrapValidator').resetForm(true);
+			  	$("#loginOut form")[0].reset();
+			  }
+			})	
+		});
+	</script>
+</body>
+</html>

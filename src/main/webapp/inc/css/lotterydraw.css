@@ -1,0 +1,160 @@
+*{margin:0;padding:0;}
+.prize_con{position: absolute;width: 100%;height: 100%;background: url('../images/firstp_bg.jpg') no-repeat left top / 100% 100%;overflow: hidden;}
+
+.titlearea_temp{border:0pt outset yellow;width:100%;float:left;text-align:center;padding-top:3%;margin-bottom:4px}
+.leftarea_temp{border:0pt outset yellow;width:100%;height:90%;float:left}
+.employeelist_temp{
+	border:1pt outset #C3030B;
+	margin:15px 5px;
+	height:80%;
+	border-radius:5px;
+	-moz-border-radius:5px; /* Old Firefox */
+	background:rgba(201,4,11,0.8);
+}
+
+.leftarea{border:0pt outset yellow;width:25%;height:100%;float:left;display:none}
+.centerarea{border:0pt outset yellow;width:50%;height: 100%;float:left;display:none}
+.rightarea{border:0pt outset yellow;width:25%;height: 100%;float:left;display:none}
+
+.titlearea{border:0pt outset yellow;width:100%;float:left;text-align:center;padding-top:6%;margin-bottom:4px}
+.title{font-size:36px;color:#FFFF00;text-shadow:5px 2px 6px #404040;}
+
+
+.rollingarea{border:0pt outset yellow;width:100%;height:75%;float:left;text-align:center}
+.roller{border:0pt outset yellow;width:100%;height:80%;text-align:center}
+
+.employeelist{
+	border:1pt outset #C3030B;
+	margin:80px 5px;
+	height:80%;
+	border-radius:5px;
+	-moz-border-radius:5px; /* Old Firefox */
+	background:rgba(201,4,11,0.8);
+}
+.employeelist_title{
+	margin:0 0;
+	height:30px;
+	border-radius:5px;
+	-moz-border-radius:5px; /* Old Firefox */
+	background:rgba(168,0,0,0.7);
+	text-align:center;
+	color:#FFC000;
+	font-size:19px;
+}
+.empblock{
+  color:#FFC000;
+  border-bottom:1pt dotted #FFC000;
+  height:25px;
+  padding:4px;
+  margin:4px;
+  font-weight:bold;
+  font-size:18px;
+  text-align:center;
+}
+
+.prize_set{font-size: 16px;color: #FFC000;line-height:30px;align:center}
+.prize_set li{display:inline-block;margin-left: 10px;margin-right: 10px;}
+.set_grade select,.set_people input ,.set_money input{background: #ffeaaa;width:80px;height:22px;border:1px solid #FFC000;color: #000;padding-left:3px;padding-right:3px;}
+
+.start{width: 250px;height: 90px;margin:0 auto;}
+.startStopArea{
+  padding:4px;
+  margin:4px;
+}
+
+.info{
+	border-top:1pt solid #FFC000;
+	display:inline-block;
+}
+#luckydogscontainer{
+	overflow:hidden;	
+}
+#luckydogs{
+		position:relative;
+}
+
+.rollingNames_small{
+	font-size:24px;
+	color:#DB6C0A;
+}
+.rollingNames_normal{
+	font-size:25px;
+	color:#DB6C0A;
+}
+.rollingNames_big{
+	font-family:"KaiTi_GB2312","Microsoft YaHei";
+	font-size:36px;
+	color:#ffeaaa;
+	background-color: #ffff0073;
+	display:inline-block;
+	width:400px;
+	padding-left:20px;
+	padding-right:20px;
+	background-image:url(../images/hand_pointer.png);
+	background-repeat:no-repeat;
+	background-position:4px;
+	border-top:1pt solid #ffff00;
+	border-bottom:1pt solid #ffff00;
+}
+.nameCellA{
+	width:28%;
+	float:left;
+	text-align:center;
+}
+.nameCellB{
+	width:32%;
+	float:left;
+	text-align:center;
+}
+.nameCellC{
+	width:20%;
+	float:left;
+	text-align:center;
+}
+.nameCellD{
+	width:20%;
+	float:left;
+	text-align:center;
+}
+.nameCellE{
+	width:40%;
+	float:left;
+	text-align:center;
+}
+.empblock_temp{
+  color:#FFC000;
+  border-bottom:1pt dotted #FFC000;
+  height:25px;
+  padding:4px;
+  margin:4px;
+  text-align:center;
+  width:220px;
+  float:left;
+}
+.nameOutsideCell_temp{
+	width:36%;
+	float:left;
+	text-align:center;
+}
+.nameInsideCell_temp{
+	width:28%;
+	float:left;
+	text-align:center;
+	font-weight:bold;
+	font-size:18px;
+}
+
+.prizeGradeContainer{
+	position:absolute;
+	bottom:20px;
+	right:60px
+}
+
+.u-flyer{display: block;width: 40px;height: 40px;border-radius: 50px;position: fixed;z-index: 9999;}
+
+.tips{
+	position:absolute;
+	bottom:10px;
+	left:160px;
+	display:none;
+}

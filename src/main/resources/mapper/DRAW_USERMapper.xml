@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chenyuantech.lotterydraw.dao.DRAW_USERMapper">
+  <resultMap id="BaseResultMap" type="com.chenyuantech.lotterydraw.bean.DRAW_USER">
+    <id column="ZX01" jdbcType="VARCHAR" property="ZX01" />
+    <result column="ZX02" jdbcType="VARCHAR" property="ZX02" />
+    <result column="ZX03" jdbcType="VARCHAR" property="ZX03" />
+    <result column="ZXACTI" jdbcType="VARCHAR" property="ZXACTI" />
+    <result column="PASSWORD" jdbcType="VARCHAR" property="PASSWORD" />
+    <result column="DRAW_LEVEL" jdbcType="VARCHAR" property="DRAW_LEVEL" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    ZX01, ZX02, ZX03, ZXACTI, PASSWORD, DRAW_LEVEL
+  </sql>
+  <select id="selectByExample" parameterType="com.chenyuantech.lotterydraw.bean.DRAW_USERExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from DRAW_USER
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from DRAW_USER
+    where ZX01 = #{ZX01,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from DRAW_USER
+    where ZX01 = #{ZX01,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.chenyuantech.lotterydraw.bean.DRAW_USERExample">
+    delete from DRAW_USER
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.chenyuantech.lotterydraw.bean.DRAW_USER">
+    insert into DRAW_USER (ZX01, ZX02, ZX03, 
+      ZXACTI, PASSWORD, DRAW_LEVEL
+      )
+    values (#{ZX01,jdbcType=VARCHAR}, #{ZX02,jdbcType=VARCHAR}, #{ZX03,jdbcType=VARCHAR}, 
+      #{ZXACTI,jdbcType=VARCHAR}, #{PASSWORD,jdbcType=VARCHAR}, #{DRAW_LEVEL,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.chenyuantech.lotterydraw.bean.DRAW_USER">
+    insert into DRAW_USER
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="ZX01 != null">
+        ZX01,
+      </if>
+      <if test="ZX02 != null">
+        ZX02,
+      </if>
+      <if test="ZX03 != null">
+        ZX03,
+      </if>
+      <if test="ZXACTI != null">
+        ZXACTI,
+      </if>
+      <if test="PASSWORD != null">
+        PASSWORD,
+      </if>
+      <if test="DRAW_LEVEL != null">
+        DRAW_LEVEL,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="ZX01 != null">
+        #{ZX01,jdbcType=VARCHAR},
+      </if>
+      <if test="ZX02 != null">
+        #{ZX02,jdbcType=VARCHAR},
+      </if>
+      <if test="ZX03 != null">
+        #{ZX03,jdbcType=VARCHAR},
+      </if>
+      <if test="ZXACTI != null">
+        #{ZXACTI,jdbcType=VARCHAR},
+      </if>
+      <if test="PASSWORD != null">
+        #{PASSWORD,jdbcType=VARCHAR},
+      </if>
+      <if test="DRAW_LEVEL != null">
+        #{DRAW_LEVEL,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.chenyuantech.lotterydraw.bean.DRAW_USERExample" resultType="java.lang.Long">
+    select count(*) from DRAW_USER
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update DRAW_USER
+    <set>
+      <if test="record.ZX01 != null">
+        ZX01 = #{record.ZX01,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ZX02 != null">
+        ZX02 = #{record.ZX02,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ZX03 != null">
+        ZX03 = #{record.ZX03,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ZXACTI != null">
+        ZXACTI = #{record.ZXACTI,jdbcType=VARCHAR},
+      </if>
+      <if test="record.PASSWORD != null">
+        PASSWORD = #{record.PASSWORD,jdbcType=VARCHAR},
+      </if>
+      <if test="record.DRAW_LEVEL != null">
+        DRAW_LEVEL = #{record.DRAW_LEVEL,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update DRAW_USER
+    set ZX01 = #{record.ZX01,jdbcType=VARCHAR},
+      ZX02 = #{record.ZX02,jdbcType=VARCHAR},
+      ZX03 = #{record.ZX03,jdbcType=VARCHAR},
+      ZXACTI = #{record.ZXACTI,jdbcType=VARCHAR},
+      PASSWORD = #{record.PASSWORD,jdbcType=VARCHAR},
+      DRAW_LEVEL = #{record.DRAW_LEVEL,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.chenyuantech.lotterydraw.bean.DRAW_USER">
+    update DRAW_USER
+    <set>
+      <if test="ZX02 != null">
+        ZX02 = #{ZX02,jdbcType=VARCHAR},
+      </if>
+      <if test="ZX03 != null">
+        ZX03 = #{ZX03,jdbcType=VARCHAR},
+      </if>
+      <if test="ZXACTI != null">
+        ZXACTI = #{ZXACTI,jdbcType=VARCHAR},
+      </if>
+      <if test="PASSWORD != null">
+        PASSWORD = #{PASSWORD,jdbcType=VARCHAR},
+      </if>
+      <if test="DRAW_LEVEL != null">
+        DRAW_LEVEL = #{DRAW_LEVEL,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ZX01 = #{ZX01,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.chenyuantech.lotterydraw.bean.DRAW_USER">
+    update DRAW_USER
+    set ZX02 = #{ZX02,jdbcType=VARCHAR},
+      ZX03 = #{ZX03,jdbcType=VARCHAR},
+      ZXACTI = #{ZXACTI,jdbcType=VARCHAR},
+      PASSWORD = #{PASSWORD,jdbcType=VARCHAR},
+      DRAW_LEVEL = #{DRAW_LEVEL,jdbcType=VARCHAR}
+    where ZX01 = #{ZX01,jdbcType=VARCHAR}
+  </update>
+</mapper>

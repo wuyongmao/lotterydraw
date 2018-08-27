@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>中奖名单</title>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type"
+	content="multipart/form-data; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+<link rel="stylesheet" href="inc/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet"
+	href=" inc/bootstrap/plugins/bootstrapTable/bootstrap-table.min.css">
+<link rel="stylesheet"
+	href=" inc/bootstrap/plugins/bootstrap-dialog/css/bootstrap-dialog.min.css">
+<link rel="icon" href="inc/images/cylogo.png" type="image/png">
+
+
+<script src="inc/bootstrap/js/jquery.min.js"></script>
+<script src="inc/bootstrap/js/bootstrap.min.js"></script>
+<script
+	src="inc/bootstrap/plugins/bootstrapTable/bootstrap-table.min.js"></script>
+<script
+	src="inc/bootstrap/plugins/bootstrapTable/bootstrap-table-zh-CN.min.js"></script>
+<script
+	src="inc/bootstrap/plugins/bootstrap-dialog/js/bootstrap-dialog.min.js"></script>
+
+<script src="inc/bootstrap/plugins/bootstrap-table-export.js"></script>
+<script src="inc/bootstrap/plugins/tableExport.js"></script>
+</head>
+<style>
+body {
+	color: #423123;
+	 
+}
+
+.title {
+	margin-top: 0;
+	padding-bottom: 7px;
+	border-bottom: 1px solid #ebebeb;
+	margin-bottom: 21px;
+	position: relative;
+}
+
+.title:after {
+	content: "";
+	width: 90px;
+	height: 1px;
+	background: #e67e22;
+	position: absolute;
+	left: 0;
+	bottom: -1px;
+}
+
+.regtitle {
+	padding: 1px;
+	margin-bottom: 10px;
+}
+
+div[name=moreinfo] {
+	cursor: pointer;
+}
+
+.panel-heading {
+	cursor: pointer;
+}
+
+.h6,h5 {
+	margin-top: 2px;
+	margin-bottom: 4px;
+}
+</style>
+<body>
+	<div class="container">
+		<!-- <div id="toolbar">
+					<a id="create" class="btn btn-success btn-lg"> <span
+						class="glyphicon glyphicon-plus"></span> 推送
+					</a> <a id="update" class="btn btn-info btn-lg"> <span
+						class="glyphicon glyphicon-edit"></span> 修改
+					</a>
+				 <span class="alert"></span>
+
+				</div> -->
+		<div class="div-table">
+			<table id="table" data-toggle="table" data-icon-size="outline"
+				data-show-columns="true" data-height="580" data-show-search="true"
+				data-pagination="true" data-search="true" data-show-refresh="true"
+				data-query-params="queryParams" data-click-to-select="true"
+				data-page-list="[10, 50, 100, 200 ,500 ,1000]"
+				data-mobile-responsive="true" data-url="getrecord2">
+				<thead>
+					<tr>
+				    	<th data-field="GEN01" data-sortable="true">工号</th>
+						<th data-field="GEN02" data-sortable="true">姓名</th>
+						<th data-field="ND" data-sortable="true" data-visible="false">年度</th>
+						<th data-field="AWARD_LEVEL" data-sortable="true">奖级</th>
+						<th data-field="AWARD" data-sortable="true" data-visible="false">奖品</th> 
+						<th data-field="GEN03" data-sortable="true" data-visible="false">部门编号</th>
+						<th data-field="GEM02" data-sortable="true">部门名称</th>
+						<th data-field="FLAG" data-sortable="true" data-visible="false">有效标记</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+
+	<form id="form">
+
+		<div id="modal" class="modal fade">
+
+			<div class="modal-dialog">
+
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+						<h6 class="modal-title"></h6>
+					</div>
+
+					<div class="form-horizontal">
+						<div class="form-group">
+							<label class="col-sm-3 control-label"> <font color="red">*</font>年度
+							</label>
+							<div class="col-sm-8">
+								<input type="text" readonly="readonly"
+									class="form-control input-sm" id="ND" name="ND">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label"><font color="red">*</font>工号</label>
+							<div class="col-sm-8">
+
+								<input type="text" readonly="readonly"
+									class="form-control  input-sm" id="GEN01" name="GEN01">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-3 control-label"> 有效标记</label>
+							<div class="col-sm-8">
+
+								<input type="text" class="form-control  input-sm" id="FLAG"
+									name="FLAG">
+							</div>
+						</div>
+
+
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary submit">提交</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					</div>
+
+				</div>
+				<!-- /.modal-content -->
+			</div>
+
+			<!-- /.modal-dialog -->
+
+		</div>
+	</form>
+
+	<!-- /.modal -->
+	<script>
+		//	var API_URL = 'http://' + location.host + '/lotterydraw/';
+			var opurl = "updaterecord";
+			var op = "add";
+			var $div = $('.div-table'), $table = $('#table'), $update = $('#update'), $modal = $(
+					'#modal').modal({
+				show : false
+			}), $alert = $('.alert').hide();
+			var obrow = {};
+			
+			function getParameter(name){
+			    var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+			    var r = window.location.search.substr(1).match(reg);
+			    if(r!=null)return  unescape(r[2]); return null;
+			}
+			
+			$(function() {
+				//微信企业号返回的与用户相关的code,可以使用这个code查找当前用户的ID
+				//再通过ID获取详细信息
+				var loc = document.location.toString();
+				var userCode =  getParameter("code");
+				 console.info(userCode);
+				
+				
+				
+				$(document).on("click", "div[name=moreinfo]", function() {
+					var ctrlObj = $(this).parent().nextAll(":eq(1)");
+					if (ctrlObj.is(":hidden")) {
+						ctrlObj.attr("class", "show");
+						$(this).addClass("glyphicon-chevron-up");
+						$(this).removeClass("glyphicon-chevron-down")
+					} else {
+						ctrlObj.attr("class", "hidden");
+						$(this).addClass("glyphicon-chevron-down");
+						$(this).removeClass("glyphicon-chevron-up")
+					}
+				});
+
+				$("#table").on("click-row.bs.table", function(e, row, ele) {
+					$(".danger").removeClass("danger");
+					$(ele).addClass("danger");
+					obrow = row;
+					//	//console.info(row);
+				});
+
+				$('#create').click(function() {
+					opurl = "getrecord2"; //updatevip
+					op = "add";
+					$("#item").removeAttr("readonly");
+					$("#nd").removeAttr("readonly");
+					$("input").val('');
+					showModal($(this).text());
+				});
+				$('#update').click(function() {
+					opurl = "updaterecord"; //updatevip   addvid
+					op = "update";
+					$("#ND").attr("readonly", "readonly")
+					$("#GEN01").attr("readonly", "readonly")
+					$("input").val('');
+
+					if (JSON.stringify(obrow) == "{}") {
+						BootstrapDialog.show({
+							title : '提示信息',
+							//   message: $('<img alt="" src="vqrcode/'+viewsrc+'">') 
+							message : $('<p> 请选择行</p>')
+
+						});
+					} else {
+ 						 showModal($(this).text(), obrow);
+					  
+
+					}
+				});
+
+				$modal.find('.submit').click(
+						function() {
+							var row = {};
+							$modal.find('input[name]').each(function() {
+								//     $("input").val(''); 
+								row[$(this).attr('name')] = $(this).val();
+							});
+							row = serializeObject($('#form'));
+							 
+							recordo={};
+							recordo.gen01=row.GEN01;
+							recordo.flag=row.FLAG;
+							recordo.nd=row.ND;
+							// "gen01", "award_LEVEL", "flag", "nd"
+							
+							
+							console.info(row);
+							
+							// //console.info(row);  
+							var clstatus = "";
+							$.ajax({
+								url :   opurl,
+								type : 'POST',
+								dataType : 'json',
+								async : false,
+
+								contentType : 'application/json;charset=UTF-8',
+								data : JSON.stringify(recordo),
+								success : function(data) {
+									//console.info(data);
+									$modal.modal('hide');
+									$table.bootstrapTable('refresh');
+									if (data != "fail") {
+
+										showAlert(
+												(op == "update" ? '更新' : '推送')
+														+ ' 成功!', 'success');
+
+									} else {
+										showAlert(
+												(op == "update" ? '更新' : '推送')
+														+ ' 失败!', 'danger');
+
+									}
+
+								},
+								error : function(data) {
+									$modal.modal('hide');
+									showAlert((op == "update" ? '更新' : '推送')
+											+ ' 失败!', 'danger');
+
+								}
+							});
+
+						});
+
+			});
+
+			function serializeObject(form) {
+				var o = {};
+				$.each(form.serializeArray(),
+						function(index) {
+							if (o[this['name']]) {
+								o[this['name']] = o[this['name']] + ","
+										+ this['value'];
+							} else {
+								o[this['name']] = this['value'];
+							}
+						});
+				return o;
+			}
+
+			function queryParams(params) {
+				return {};
+			}
+
+			function actionFormatter(value) {
+				return [
+						'<a class="update" href="javascript:" title="修改"><i class="glyphicon glyphicon-edit"></i></a>',
+						'<a class="upload" href="javascript:" title="推送"><i class="glyphicon glyphicon-plus-sign"></i></a>'
+				/*  			'<a class="remove" href="javascript:" title="删除"><i class="glyphicon glyphicon-remove-circle"></i></a>'
+				 */
+				].join('');
+			}
+
+		 
+			function showModal(title, row) {
+				row = row || {
+					id : '',
+					name : '',
+					stargazers_count : 0,
+					forks_count : 0,
+					description : ''
+				}; // default row value
+
+				$modal.data('id', row.id);
+				$modal.find('.modal-title').text(title);
+				for ( var name in row) {
+					$modal.find('input[name="' + name + '"]').val(row[name]);
+				}
+				$modal.modal('show');
+			}
+
+			function showAlert(title, type) {
+				$alert.attr('class', 'alert alert-' + type || 'success').html(
+						'<i class="glyphicon glyphicon-check"></i> ' + title)
+						.show();
+				setTimeout(function() {
+					$alert.hide();
+				}, 3000);
+			}
+		</script>
+</body>
+</html>

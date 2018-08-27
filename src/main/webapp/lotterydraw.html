@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>恭贺新禧-辰元年会抽奖</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="icon" href="inc/images/cylogo.png" type="image/png">
+<link rel="stylesheet" type="text/css" href="inc/css/lotterydraw.css" />
+<link rel="stylesheet" type="text/css" href="inc/css/animate.min.css" />
+<script src="inc/js/jquery-1.8.3.min.js"></script>
+<script src="inc/js/jquery.transit.js"></script>
+<script src="inc/js/lotterydraw.js"></script>
+<script src="inc/js/fly.js"></script>
+<script> 
+/*!
+ *人员抽点程序 v1.0 
+ *© 2017 辰元纺织科技有限公司 版权所有
+
+ *含：
+ *lotterydraw.js
+ *https://www.chenyuantech.com/lotterydraw/inc/js/lotterydraw.js
+ *otterydraw.css
+ *https://www.chenyuantech.com/lotterydraw/inc/css/lotterydraw.css
+
+ *本程序遵循 MIT协议 
+ *本程序用于随机抽取人员名单,界面设计时主要考虑用于公司年会抽奖，
+ *正因如此，一开始就考虑使用最易于阅读及查验的JavaScript+H5来实现其功能，
+ *同时，为了避嫌，程序采用离线方式运行,所有资料的存取均于浏览器端的数据库进行。
+ *虽然如此，程序功能设计上还是考虑了通用性，理论上，稍作修改，即可适用任意类型的人员名单抽点。
+ *如若某一天，您尝试修订这支程序，或将其改写为其它的程序语言，请记得仔细阅读整支程序以理解我的
+ *设计意图，我已经在重要的点上都注释得非常清晰，
+ *所有的故事都是从$(document).ready()方法开始的，同样作为程序人的您，应当不难理解。
+ *最重要的：涉及到敏感名单时不要尝试使用所谓“技术手段”改写程序来影响常规运行结果，
+ *这么做只会得不尝失！我是辰元资讯部软体课第1任主管，请跟随我们的思维模式，才有机会走得更远。
+
+ by jack.xiang 2017-12-14
+ */
+
+var employeeList = [];
+var employeeListRamdonly = [];
+var employeeList_temp = [];
+var luckyDogsList = [];
+// 参与抽奖人员名单指针
+var pointer = 0;
+var auto_speed=2;
+
+// 参与抽奖人员名单长度
+var len = 0;
+// 中奖人员名单长度
+var len_luckDogs = 0;
+var curLuckyDosItv = null;
+// 本次抽取人数计数
+var autoCount = 1;
+// 本次自动抽取的人员总数
+var everyNum = 1;
+// 本奖等上限
+var prizeNum = 0;
+// 是否自动下一位
+var isAutoRun = false;
+// 自动抽奖倒计时3~6秒
+var autoRunCountDown = 1;
+// 是否正在自动抽奖
+var isAutoRuning = false;
+var autoCountdownInv = null;
+$(document).ready(
+	function() {
+		// 1.初始化系统参数
+		$(this).keyup(function(event) {
+			var keycode = event.which;
+			if (keycode == 32) {
+				if ($(".titlearea_temp").is(':visible')) {
+					$("#tips").hide();
+					$(".titlearea_temp").transition({y : -1000,opacity : 0}, 1000);
+					$(".leftarea_temp").transition({y : 1500,opacity : 0,complete : function() {
+							// 清除临时定时器
+							clearInterval(tempRotateEmployeeListItv);
+							// 删除临时区
+							$(".titlearea_temp").hide();
+							$(".leftarea_temp").hide();
+
+							// 装載抽奖界面
+							$(".leftarea").fadeIn(1500);
+							$(".rightarea").fadeIn(2000);
+							$(".centerarea").show();
+							// 暂停背景音乐
+							// bgmusic.pause();
+							// 启动奖品特效
+							prizeEff = setInterval(showPrizeEffect, 6000);
+							$("#prizeContainer").fadeIn(1000);
+							prizeNameEff = setInterval(showPrizeNameEffect, 3000);
+							$("#prizeGradeContainer").fadeIn(1000);
+							isDrwingEff = setInterval(showIsdrawingEffect, 500);
+							hideTip();
+							setTimeout(function() {
+								showTip(100, 480, "永远相信，<br>美好的事情即将发生!", "bounceIn", "fadeIn", "rubberBand", 10000, true);
+							}, 2500);
+						}
+					}, 1000);
+					$("#autoTimeCountDown").css({"top" : 200,"left" : 470});
+				}
+			}
+			if (keycode == 13) {
+				if ($(".titlearea_temp").is(':visible')) {
+					return false;
+				}
+				$("#startOrStopBTN").click();
+			}
+		});
+		/*
+		 * 所有的日志(如:打乱顺序后的名单，中奖人员名单，未中奖人员名单等)均以日为单元存放，
+		 * 为的是防止程式意外中断时可以重新自动还原当天的抽取状况。
+		 */
+		// 2.从数据库取出当日未中奖的人员名单并放到参与抽奖人员名单中
+		// 如果当日是首次开启，没有数据，则取所有人员名单并在数据库中创建一个今日抽奖名单副本
+		// 接入点1，获取原始数据
+		employeeList = getEmployeeList();
+		// 接入点2，动态获取奖项，名额，抽取人数，抽奖主管和奖品图片
+
+		// 3.从数据库中取出已中奖的人员名单并放到中奖人员名单列表中
+		// luckyDogsList = employeeList.slice(0);
+		luckyDogsList = getluckyDogsList2(2017,'特等奖' );
+
+		// 复制一份数组打乱
+		employeeListRamdonly = employeeList.slice(0);
+		// 打乱3次
+		shuffle(shuffle(shuffle(employeeListRamdonly)));
+		// 4.复制一份到临时区，用于大屏展示参与抽奖人员名单
+		employeeList_temp = employeeList.slice(0);
+		// 进行一次填充，以免中间区空白
+		setTimeout(initRollingName, 1500);
+
+		// 5.删除7天前的抽奖结果
+
+		// 6.设置参与抽奖人员名单动画效果
+		setInterval(rotateEmployeeList, 3000);
+
+		// 7.设置临时区参与抽奖人员名单动画效果
+		tempRotateEmployeeListItv = setInterval(tempRotateEmployeeList, 10000);
+		// 1300这个数字是emplist_temp里的div的长度的加总，emplist_temp里的div是有固定长度的
+		var emplisttempLeft = ($(document).width() - 1300) / 2;
+		$("#emplist_temp").css("padding-left", emplisttempLeft);
+
+		// 8.设置中奖人员名单动画效果
+		setInterval(rotateLuckyDogs, 8500);
+		// 准备注绪，程序待命中...
+		// 当用户按下开始按钮时滚动名单
+		// 手动抽奖
+		$("#startOrStopBTN").click(function() {
+			if ($("#prizeNum").val() == 0) {
+				hideTip();
+				showTip(100, 480, "本奖项已抽完，<br>可联系工作人员增加名额!", "bounceIn", "fadeIn", "rubberBand", 3000, false);
+				// 自动抽取时不响应任何按键
+				return false;
+			}
+			if (employeeList.length == 0) {
+				hideTip();
+				showTip(100, 480, "抱歉,<br>没有人可以抽了!", "bounceIn", "fadeIn", "rubberBand", 3000, false);
+				return false;
+			}
+			if (isAutoRuning) {
+				hideTip();
+				showTip(100, 480, "批量点取中，<br>请稍候...", "bounceIn", "fadeIn", "rubberBand", 3000, false);
+				// 自动抽取时不响应任何按键
+				return false;
+			}
+			$("#prizeNum,#everyNum,#grade").attr({"disabled" : "disabled"});
+			clearInterval(curLuckyDosItv);
+			// 加按下特效
+			$(".start").transition({
+				y : 2,
+				complete : function() {
+					$(".start").transition({
+						y : 0
+					}, 100);
+				}
+			}, 100);
+			if ($(this).attr("status") == "stoped") {
+				$("#isdrawing").html("正在抽取中...");
+				bgmusic.play();
+				// 开始抽奖
+				$(this).attr("status", "started");
+				$(this).attr("src", "inc/images/prize_stop.png");
+				//console.info($("#grade").val()); 
+				auto_speed=$("#grade").val(); 
+
+				if(auto_speed == 0) {
+					auto_speed=1;
+				}
+				if ($("#grade").val() >= 3) {
+					auto_speed=$("#grade").val(); 
+					$("#isdrawing").html("自动随机点取中...");
+					prizeNum = $("#prizeNum").val();
+					$("#startOrStopBTN").hide();
+					isAutoRun = true;
+					isAutoRuning = true;
+					everyNum = $("#everyNum").val();
+					// 自动停止倒计时3~6秒的随机数
+					autoRunCountDown = 1;//Math.floor(Math.random() * 3) + 2;
+					autoCountdownInv = setInterval(countDownLisener, 200);
+				}
+				rollingItv = setInterval(rolling, 1);
+			} else {
+				$("#isdrawing").html("准备抽取:");
+				bgmusic.pause();
+				// 停止抽奖
+				$(this).attr("status", "stoped");
+				$(this).attr("src", "inc/images/prize_start.png");
+				clearInterval(rollingItv);
+				$("#prizeNum,#everyNum,#grade").removeAttr("disabled");
+				setTimeout(doAnim, 10);
+			}
+		});
+		function countDownLisener() {
+			autoRunCountDown -= 1;
+			if (autoRunCountDown < 0) {
+				autoRunCountDown = 0;
+			}
+			$("#autoTimeCountDown").html(autoRunCountDown);
+
+			// 倒计时结束，抽中一个人
+			if (autoRunCountDown == 0) {
+				clearInterval(rollingItv);
+				clearInterval(autoCountdownInv);
+				// setTimeout(doAnim,500);
+				doAnim();
+			}
+		}
+		$("#startOrStopBTN").on('mouseover', function() {
+			$(this).transition({
+				scale : 1.1
+			});
+		}).on('mouseout', function() {
+			$(this).transition({
+				scale : 1
+			});
+		});
+
+		function rotateEmployeeList() {
+			// 淡入
+			$("#emplist").transition({
+				opacity : 0.1,
+				complete : function() {
+					// 切换名单
+					sliceEmployee();
+					// 淡出
+					$("#emplist").transition({
+						opacity : 1
+					}, 1500);
+				}
+			});
+		}
+		function tempRotateEmployeeList() {
+			// 淡入
+			$("#emplist_temp").transition({
+				opacity : 0.1,
+				complete : function() {
+					// 切换名单
+					sliceTempEmployee();
+					// 淡出
+					$("#emplist_temp").transition({
+						opacity : 1
+					}, 1500);
+				}
+			});
+		}
+		var ldFlag = 0;
+		function rotateLuckyDogs() {
+			var pst = 0;
+			if (ldFlag == 0) {
+				pst = -30;
+				ldFlag = 1;
+			} else {
+				pst = 40;
+				ldFlag = 0;
+			}
+			$("#luckydogs").transition({
+				y : pst,
+				opacity : 0.1,
+				complete : function() {
+					// 切换名单
+					sliceLuckyDogs();
+					// 淡出
+					$("#luckydogs").transition({
+						y : 0,
+						opacity : 1
+					}, 1200);
+				}
+			}, 1000);
+		}
+		// 参与抽奖人员名单翻转后循环截取参与抽奖人员显示在屏幕上
+		pointer = 0;
+		len = employeeList.length;
+		var result = 0;
+		// 一次取12个人
+		var step = 12;
+		function sliceEmployee() {
+			var temp = null;
+			result = len - pointer;
+			if (result < step) {
+				// 数量少于步长则截取剩余的名单
+				temp = employeeList.slice(pointer);
+				pointer = -step;
+			} else {
+				temp = employeeList.slice(pointer, (pointer + step));
+			}
+			$("#emplist").empty();
+			var tmp = null;
+			$(temp).each(
+					function(i, n) {
+						tmp = temp[i].split('#');
+						$("#emplist").append(
+								"<div class=\"empblock\"><div class=\"nameCellB\">" + tmp[0] + "</div><div class=\"nameCellE\">" + tmp[1] + "</div><div class=\"nameCellA\">"
+										+ tmp[2] + "</div></div>");
+					});
+			pointer += step;
+		}
+		;
+		// 计时器执行前先执行一次，以免参与抽奖名单有空白
+		sliceEmployee();
+
+		// 临时区参与抽奖人员名单翻转后循环截取参与抽奖人员显示在屏幕上
+		var pointer_temp = 0;
+		var len_temp = employeeList_temp.length;
+		var result_temp = 0;
+		// 一次取60个人
+		var step_temp = 60;
+		function sliceTempEmployee() {
+			var temp_temp = null;
+			result_temp = len_temp - pointer_temp;
+			if (result_temp < step_temp) {
+				// 数量少于步长则截取剩余的名单
+				temp_temp = employeeList_temp.slice(pointer_temp);
+				pointer_temp = -step_temp;
+			} else {
+				temp_temp = employeeList_temp.slice(pointer_temp, (pointer_temp + step_temp));
+			}
+			$("#emplist_temp").empty();
+			var tmp_temp = null;
+			$(temp_temp).each(
+					function(i, n) {
+						tmp_temp = temp_temp[i].split('#');
+						$("#emplist_temp").append(
+								"<div class=\"empblock_temp\"><div class=\"nameOutsideCell_temp\">" + tmp_temp[0] + "</div><div class=\"nameInsideCell_temp\">" + tmp_temp[1]
+										+ "</div><div class=\"nameOutsideCell_temp\">" + tmp_temp[2] + "</div></div>");
+					});
+			pointer_temp += step_temp;
+		}
+		;
+		// 计时器执行前先执行一次，以免参与抽奖名单有空白
+		sliceTempEmployee();
+
+		// 中奖人员名单翻转后循环截取中奖人员显示在屏幕上
+		var pointer_luckDogs = 0;
+		len_luckDogs = luckyDogsList.length;
+		var result_luckDogs = 0;
+		// 一次取12个人
+		var step_luckDogs = 7;
+		function sliceLuckyDogs() {
+			if (!len_luckDogs) {
+				return false;
+			}
+			var temp_luckDogs = null;
+			result_luckDogs = len_luckDogs - pointer_luckDogs;
+			if (result_luckDogs < step_luckDogs) {
+				// 数量少于步长则截取剩余的名单
+				temp_luckDogs = luckyDogsList.slice(pointer_luckDogs);
+				pointer_luckDogs = -step_luckDogs;
+			} else {
+				temp_luckDogs = luckyDogsList.slice(pointer_luckDogs, (pointer_luckDogs + step_luckDogs));
+			}
+			$("#luckydogs").empty();
+			var tmp_luckDogs = null;
+			$(temp_luckDogs).each(
+					function(i, n) {
+						tmp_luckDogs = temp_luckDogs[i].split('#');
+
+						$("#luckydogs").append(
+								"<div class=\"empblock\"><div class=\"nameCellA\">" + tmp_luckDogs[0] + "</div><div class=\"nameCellB\">" + tmp_luckDogs[1]
+										+ "</div><div class=\"nameCellC\">" + tmp_luckDogs[2] + "</div><div class=\"nameCellD\">" + tmp_luckDogs[3] + "</div></div>");
+
+					});
+			// console.log(temp);
+			pointer_luckDogs += step_luckDogs;
+		}
+		;
+		// 计时器执行前先执行一次，以免中奖名单有空白
+		sliceLuckyDogs();
+
+		// 按下开始按钮后随机抽点13个人
+		function rolling() {
+			var temp_ramdomly = [];
+			// 随机点13次,要求不能点到重复的数据
+			var ramdomIdx = 0;
+			var curLen = employeeListRamdonly.length;
+			var temp = "";
+			// 设数组长度为100，则curren值为x乘以100再取整数，已知x为0~1的随机数，则current可能的值为0~100
+			ramdomIdx = Math.floor(Math.random() * curLen);
+			// 以点到的数为基点，向下取12个数，如果到底端，向上取到滿13个或到顶端为止
+			for (var i = ramdomIdx; i < curLen; i++) {
+				temp_ramdomly.push(employeeListRamdonly[i] + i);
+				if (temp_ramdomly.length == 14) {
+					break;
+				}
+			}
+			if (temp_ramdomly.length < 13) {
+				for (var i = (ramdomIdx - 1); i >= 0; i--) {
+					temp_ramdomly.push(employeeListRamdonly[i] + i);
+					if (temp_ramdomly.length == 13) {
+						break;
+					}
+				}
+			}
+			// 打乱顺序
+			shuffle(temp_ramdomly);
+			var tmp_ramdomly = null;
+			var tempRamdomlyArrLen = temp_ramdomly.length;
+			if (tempRamdomlyArrLen < $(".roller>div").length) {
+				if (((".roller>div").length - tempRamdomlyArrLen) % 2 == 0) {
+					$(".roller>div").first().remove();
+				} else {
+					$(".roller>div").last().remove();
+				}
+			}
+			$(".roller>div").each(
+				function(i, n) {
+					tmp_ramdomly = temp_ramdomly[i].split('#');
+					$(this).html(
+							"<div ramdomlyEmpListIndx=\"" + tmp_ramdomly[3] + "\">" + tmp_ramdomly[0] + "&nbsp;&nbsp;" + tmp_ramdomly[1] + "&nbsp;&nbsp;" + tmp_ramdomly[2]
+									+ "</div>");
+			});
+		}
+		function showPrizeEffect() {
+			$("#prizeContainer").transition({
+				scale : 1.1,
+				complete : function() {
+					$("#prizeContainer").transition({
+						scale : 1
+					}, 100);
+				}
+			}, 500);
+		}
+		// showIsdrawingEffect
+		function showPrizeNameEffect() {
+			$("#prizeGradeContainer").transition({
+				perspective : '500px',
+				rotateY : 360,
+				complete : function() {
+					$("#prizeGradeContainer").removeAttr("style");
+				}
+			}, 500);
+		}
+
+		$(".rollingNames_big").click(function(event) {
+			var offset = $("#luckydogs").offset();
+			var flyer = $('<img class="u-flyer" src="inc/images/luckydog.png">');
+			flyer.fly({
+				start : {
+					left : $(".rollingNames_big").offset().left + 100,
+					top : $(".rollingNames_big").offset().top + 50
+				},
+				end : {
+					left : offset.left + 40,
+					top : offset.top + 40,
+					width : 0,
+					height : 0
+				},
+				speed : auto_speed ,
+				onEnd : function() {
+					$(".rollingNames_big").html("<div style=\"font-size:18px\">继续下一个<br>按下开始按钮或回车键启动</div>");
+					curLuckyDosItv = setInterval(curLuckyDosEff, 500);
+					// 是否自动抽取一下位
+					if (isAutoRun) {
+						if (autoCount < everyNum && $("#prizeNum").val() > 0 && employeeListRamdonly.length > 0) {
+							autoCount += 1;
+							// 重新计算参数并启动滚轮
+							autoRunCountDown =1 ;// Math.floor(Math.random() * 1) + 1;
+							autoCountdownInv = setInterval(countDownLisener, 200);
+							rollingItv = setInterval(rolling, 1);
+						} else {
+							// 模拟按下停止按钮
+							clearInterval(curLuckyDosItv);
+							autoCount = 1;
+							everyNum = 0;
+							isAutoRun = false;
+							$("#isdrawing").html("准备抽取:");
+							bgmusic.pause();
+							// 停止抽奖
+							$("#startOrStopBTN").attr("status", "stoped");
+							$("#startOrStopBTN").attr("src", "inc/images/prize_start.png");
+							$("#startOrStopBTN").show();
+							isAutoRuning = false;
+							$("#prizeNum,#everyNum,#grade").removeAttr("disabled");
+							if (employeeListRamdonly.length == 0) {
+								$(".roller>div").last().remove();
+								clearInterval(prizeEff);
+								clearInterval(prizeNameEff);
+								$("#prizeGradeContainer").hide();
+								$("#prizeContainer").hide();
+								$(".startStopArea").hide();
+								// 卸載抽奖界面
+								hideTip();
+								showTip(100, 480, "没有人了，<br>中奖率100%", "bounceIn", "fadeIn", "rubberBand", 3000, false);
+							} else {
+								if ($("#prizeNum").val() == 0) {
+									hideTip();
+									showTip(100, 480, "恭喜恭喜，<br>恭喜您中奖!", "bounceIn", "fadeIn", "rubberBand", 3000, false);
+								}
+							}
+						}
+					} 
+				}
+			});
+		});
+		function initRollingName() {
+			var tmpREL = null;
+			var initEmployeeList = shuffle(employeeList.slice(0));
+			$(".roller>div").each(function(i, n) {
+				tmpREL = initEmployeeList[i].split('#');
+				$(this).html("<div>" + tmpREL[0] + "&nbsp;&nbsp;" + tmpREL[1] + "&nbsp;&nbsp;" + tmpREL[2] + "</div>");
+				$(this).addClass("zoomInDown" + ' animated').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function() {
+					// $(this).removeClass();
+				});
+			});
+			initEmployeeList = null;
+			tmpREL = null;
+			$(".rollingNames_big").html("<div style=\"font-size:19px\">已准备就绪<br>按下开始按钮或回车键启动</div>");
+			$(".rollingNames_big").show();
+			curLuckyDosItv = setInterval(curLuckyDosEff, 500);
+		}
+		function curLuckyDosEff() {
+			var eff = "bounceOut";
+			$('.rollingNames_big').children(0).removeClass().addClass(eff + ' animated').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
+					function() {
+						$(this).removeClass();
+					});
+		}
+		function showIsdrawingEffect() {
+			var eff = "rubberBand";
+			$('#isdrawing').removeClass().addClass(eff + ' animated').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function() {
+				$(this).removeClass();
+			});
+		}
+		//启动背景单音乐
+		bgmusic = $("#bgmusic")[0];
+		bgmusic.play();
+		setTimeout(function() {
+			showTip(35, 160, "请核对名单。<br>按下空格键开始!", "bounceIn", "fadeIn", "rubberBand", 30000, false);
+		}, 1000);
+
+		$("#grade").change(function() {
+			doSelectorChg();
+			luckyDogsList = getluckyDogsList2(2017,$("#grade").find("option:selected").text() );
+			
+			
+		});
+		function doSelectorChg() {
+			var selector = $("#grade").find("option:selected");
+			$("#prizeNum").val(selector.attr("prizeNum"));
+			$("#everyNum").val(selector.attr("everyNum"));
+			$("#manager").val(selector.attr("manager"));
+			$("#prize").attr("src", "inc/images/prize/" + $("#grade").val() + ".png");
+			$("#prizeGradeName").html(selector.text());
+			//移走光标当用鼠标点选时光标会留在下拉框中，这时按下回车时会弹出下接框
+			$("#manager").focus();
+		}
+		doSelectorChg();
+});
+		 	
+		
+function doAnim() {
+	$("#autoTimeCountDown").html("");
+	var eff = "flash";
+	var tmptext = $('.rollingNames_big').children(0).html();
+	$('.rollingNames_big').children(0).removeClass().addClass(eff + ' animated').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function() {
+		var obj = $(".rollingNames_big").children(0);
+		var ramdomlyEmpListIndx = obj.attr("ramdomlyEmpListIndx");
+		//将中奖人加入中奖人员名单中
+		var text = employeeListRamdonly[ramdomlyEmpListIndx];
+		var grade = $("#grade").find("option:selected").text();
+
+		
+		//剩余人员减1
+		$("#prizeNum").val(parseInt($("#prizeNum").val()) - 1);
+		$("#grade").find("option:selected").attr("prizeNum", parseInt($("#grade").find("option:selected").attr("prizeNum")) - 1);
+
+		luckyDogsList.push(text + grade);
+		//中奖人员写入至数据库  
+		var record_dl = (text + grade).split('#');
+		var record_do = {};
+		record_do.nd = 2017;
+		record_do.award_LEVEL = record_dl[3];
+		record_do.gen01 = record_dl[2];
+		record_do.flag = 'Y';
+		//中奖名单写入数据库
+		$.ajax({
+			url : "addrecord",
+			dataType : 'json',
+			type : 'POST',
+			async : false,
+			contentType : 'application/json;charset=UTF-8',
+			data : JSON.stringify(record_do),
+			success : function(data) {
+			}
+
+		});
+		if ($("#grade").val() < 3){
+			$(".rollingNames_big").html("<div>"+tmptext+"</div>");
+		}
+		len_luckDogs = luckyDogsList.length;
+		//将中奖人从乱数数组中移除
+		employeeListRamdonly.splice(ramdomlyEmpListIndx, 1);
+		//在参与抽奖人员名单中将中奖人删除
+		var templen = employeeList.length;
+		for (var i = 0; i < templen; i++) {
+			if (employeeList[i] == text) {
+				employeeList.splice(i, 1);
+				//如果中奖人序号在奖箱指针之前，要将参与抽奖名单滚动指针回退1位，使保持参与抽奖人员名单滚动数据的正确
+				if (i < pointer) {
+					pointer--;
+				}
+				len = employeeList.length;
+				break;
+			}
+		}
+		$(this).removeClass();
+		$(this).html("&nbsp;");
+		if ($("#grade").val() < 3){
+			setTimeout(setLuckyDog,5000);	
+		}else{
+			setLuckyDog();
+		}
+		/* //从抽4等奖开始,启用掩盖效果
+		if ($("#grade").val() == 4) {
+			setTimeout(setLuckyDog, 3000);
+			//hideTip();
+			showTip(100, 480, "所谓运气，<br>一是运执，二是气执!", "bounceIn", "fadeIn", "rubberBand", 3000, false);
+			//showTip(100,480,"各占50%!","bounceIn","fadeIn","rubberBand",3000,false);
+			//showTip(100,480,"运势天注定，<br>气势全靠呐喊!","bounceIn","fadeIn","rubberBand",3000,false); 
+		} else {
+			setLuckyDog();
+		} */
+	});
+};
+function setLuckyDog() {
+	$(".rollingNames_big").click();
+}
+//数组打乱顺序算法
+function shuffle(array) {
+	var tmp, current, top = array.length;
+	//从原数组的最后一个元素开始往前推，直到第一个。
+	if (top)
+		while (--top) {
+			//产生一个小于数组长度的随机数
+			//第1次运行时：数组长度为100，则curren值为x乘以99再取整数，已知x为0~1的随机数，则current可能的值为0~99
+			//随后top逐1递减，则current的取值可能范围依次为0~98，0~97，0~96 ...
+			//因为后面的一定与前面的某个数进行了一次交换，逐1递减是可以确保每个数都有机会进行与数组中的其它数交换的。
+			current = Math.floor(Math.random() * top);
+			//将当前数组元素与随机取得的元素值交换位置
+			tmp = array[current];
+			array[current] = array[top];
+			array[top] = tmp;
+		}
+	return array;
+}
+function showTip(x, y, tipText, tipManEff, tipRangeEff, tipTextEff, effTimout, isDelay) {
+	var tipsObj = $("#tips");
+	$("#tips").css({"top" : x,"left" : y});
+	tipsObj.show();
+	$("#tipMan").css({"top" : x,"left" : y});
+	if (isDelay) {
+		$('#tipMan').css("-webkit-animation-delay", "1s");
+	} else {
+		$('#tipMan').css("-webkit-animation-delay", "0s");
+	}
+	;
+	$('#tipMan').removeClass().addClass(tipManEff + ' animated').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function() {
+	});
+	$("#tipRange").css({"top" : x - 40,	"left" : y - 150});
+	if (isDelay) {
+		$('#tipRange').css("-webkit-animation-delay", "1s");
+	} else {
+		$('#tipRange').css("-webkit-animation-delay", "0s");
+	}
+	$("#tipText").html("");
+	$("#tipText").css({	"top" : x - 17,	"left" : y - 120});
+	$('#tipRange').removeClass().addClass(tipRangeEff + ' animated').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function() {
+		$("#tipText").html(tipText);
+		if (isDelay) {
+			$('#tipText').css("-webkit-animation-delay", "1s");
+		} else {
+			$('#tipText').css("-webkit-animation-delay", "0s");
+		}
+		;
+		$('#tipText').removeClass().addClass(tipTextEff + ' animated').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function() {
+			//自动关闭
+			setTimeout(hideTip, effTimout);
+		});
+	});
+}
+function hideTip() {
+	$("#tips").fadeOut(  );
+}
+</script>
+</head>
+<body>
+	<div class="prize_con">
+		<!--临时区,抽奖开始时会收起-->
+		<div class="titlearea_temp">
+			<p class="title">中山辰元纺织科技有限公司</p>
+			<p class="title" style="font-size: 28px">2017年年会抽奖</p>
+		</div>
+		<div class="leftarea_temp">
+			<div class="employeelist_temp">
+				<div class="employeelist_title">参与抽奖人员名单</div>
+				<div id="emplist_temp"></div>
+			</div>
+		</div>
+
+		<!--抽奖名单区 -->
+		<div class="leftarea">
+			<div class="employeelist">
+				<div class="employeelist_title">参与抽奖人员名单</div>
+				<div id="emplist"></div>
+			</div>
+		</div>
+		<!--抽奖区-->
+		<div class="centerarea">
+			<div class="titlearea">
+				<p class="title">中山辰元纺织科技有限公司</p>
+				<p class="title" style="font-size: 28px">2017年年会抽奖</p>
+			</div>
+			<div class="rollingarea">
+				<div class="roller">
+					<div class="rollingNames_small"></div>
+					<div class="rollingNames_small"></div>
+					<div class="rollingNames_normal"></div>
+					<div class="rollingNames_normal"></div>
+					<div class="rollingNames_normal"></div>
+					<div class="rollingNames_normal"></div>
+					<div class="rollingNames_big" style='display: none'></div>
+					<div class="rollingNames_normal"></div>
+					<div class="rollingNames_normal"></div>
+					<div class="rollingNames_normal"></div>
+					<div class="rollingNames_normal"></div>
+					<div class="rollingNames_small"></div>
+					<div class="rollingNames_small"></div>
+				</div>
+				<div class="info">
+					<ul class="prize_set">
+						<li class="set_grade">
+							<div id="isdrawing">准备抽取:</div> <select id="grade">
+								 <option value="7" prizeNum="50" everyNum="25" manager="赵经理" selected>七等奖</option>
+						</select>
+						</li>
+						<li class="set_people">剩余<input type="number"
+							style="width: 40px" min="0" id="prizeNum"  
+							onkeyup="if($(this).val()<0){$(this).val(0);}">名
+						</li>
+						<li class="set_people">每次抽取:<input type="number"
+							style="width: 40px" min="1" id="everyNum"
+							onkeyup="if($(this).val()<1){$(this).val(1);}">人
+						</li>
+						<li class="set_money">抽奖主管:<input readonly type="text"
+							style="width: 250px" id="manager"></li>
+					</ul>
+				</div>
+				<script type="text/javascript">
+			 var award = {};
+			 $.ajax({
+				url : "getaward2"  ,
+				   dataType : 'json',
+		          async : false,
+		          success : function(data) {
+		        	  award=data;
+					}
+			 
+			 });
+	//		//console.info(award);
+			tbodyt='';
+
+			$("#grade").empty();
+			
+		     $.each(award, function (n, value) {
+	            //   //console.info(n + ' ' + value);
+	               var trs = ""; 
+	            
+	             
+	             if (n < Object.keys(award).length -1){
+	            	 trs +='<option value="'+value.item  +'" prizeNum="'+value.award_NUM  
+		             +'" everyNum="'+value.everynum  +'" manager="'+value.manager  
+		             +'" >'+value.award_LEVEL  +'</option>';
+	             }else{
+	            	 trs +='<option value="'+value.item  +'" prizeNum="'+value.award_NUM  
+		             +'" everyNum="'+value.everynum  +'" manager="'+value.manager  
+		             +'" selected>'+value.award_LEVEL  +'</option>';
+	             } 
+	         //    //console.info(trs);
+	             tbodyt += trs; 
+	           });
+ 
+ 	           $("#grade").append(tbodyt);
+	            
+			            
+			</script>
+
+				<div class="startStopArea">
+					<div class="start">
+						<img id="startOrStopBTN" status="stoped"
+							src="inc/images/prize_start.png"
+							style="cursor: pointer; width: 110px; height: 40px" />
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--中奖名单区-->
+		<div class="rightarea">
+			<div class="employeelist" style="height: 50%;">
+				<div class="employeelist_title">中奖人员名单</div>
+				<div id="luckydogscontainer">
+					<div id="luckydogs">
+						<div
+							style="color: #FFC000; height: 25px; padding-top: 30px; padding-bottom: 30px; margin: 4px; text-align: center;">稍安勿躁^_^</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="prizeContainer"
+		style="display: none; position: absolute; bottom: 20px; right: 60px">
+		<img id="prize" src="inc/images/prize/7.png"
+			style="width: 220px; height: 220px">
+	</div>
+	<div id="prizeGradeContainer" style="display: none"
+		class="prizeGradeContainer">
+		<img src="inc/images/prize/bom.png"
+			style="width: 100px; height: 100px">
+		<div id="prizeGradeName"
+			style="position: relative; bottom: 60px; left: 25px; color: red">七等奖</div>
+	</div>
+	<audio src="inc/music/bgmusic.mp3" id="bgmusic" loop="loop"></audio>
+	<div class="tips">&nbsp;</div>
+	<div id="tips" class="tips">
+		<img id="tipRange"
+			style="position: absolute; bottom: 70px; left: 30px; width: 190px; height: 123px;"
+			src="inc/images/tips.png">
+		<div id="tipText"
+			style="position: absolute; bottom: 120px; left: 52px; width: 200px; color: #d0690e; font-weight: bold"></div>
+		<img id="tipMan"
+			style="position: absolute; bottom: 0px; left: 180px; width: 104px; height: 104px;"
+			src="inc/images/dog2.png">
+	</div>
+	<div id="autoTimeCountDown"
+		style="position: absolute; font-size: 64px; font-weight: bold; color: #FFFF0070"></div>
+</body>
+</html>

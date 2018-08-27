@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chenyuantech.lotterydraw.dao.DRAW_AWARDMapper">
+  <resultMap id="BaseResultMap" type="com.chenyuantech.lotterydraw.bean.DRAW_AWARD">
+    <id column="ND" jdbcType="DECIMAL" property="ND" />
+    <id column="AWARD_LEVEL" jdbcType="VARCHAR" property="AWARD_LEVEL" />
+    <result column="AWARD" jdbcType="VARCHAR" property="AWARD" />
+    <result column="AWARD_NUM" jdbcType="DECIMAL" property="AWARD_NUM" />
+    <result column="ITEM" jdbcType="DECIMAL" property="ITEM" />
+    <result column="FLAG" jdbcType="CHAR" property="FLAG" />
+    <result column="EVERYNUM" jdbcType="DECIMAL" property="EVERYNUM" />
+    <result column="MANAGER" jdbcType="VARCHAR" property="MANAGER" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    ND, AWARD_LEVEL, AWARD, AWARD_NUM, ITEM, FLAG, EVERYNUM, MANAGER
+  </sql>
+  <select id="selectByExample" parameterType="com.chenyuantech.lotterydraw.bean.DRAW_AWARDExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from DRAW_AWARD
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="com.chenyuantech.lotterydraw.bean.DRAW_AWARDKey" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from DRAW_AWARD
+    where ND = #{ND,jdbcType=DECIMAL}
+      and AWARD_LEVEL = #{AWARD_LEVEL,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.chenyuantech.lotterydraw.bean.DRAW_AWARDKey">
+    delete from DRAW_AWARD
+    where ND = #{ND,jdbcType=DECIMAL}
+      and AWARD_LEVEL = #{AWARD_LEVEL,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.chenyuantech.lotterydraw.bean.DRAW_AWARDExample">
+    delete from DRAW_AWARD
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.chenyuantech.lotterydraw.bean.DRAW_AWARD">
+    insert into DRAW_AWARD (ND, AWARD_LEVEL, AWARD, 
+      AWARD_NUM, ITEM, FLAG, 
+      EVERYNUM, MANAGER)
+    values (#{ND,jdbcType=DECIMAL}, #{AWARD_LEVEL,jdbcType=VARCHAR}, #{AWARD,jdbcType=VARCHAR}, 
+      #{AWARD_NUM,jdbcType=DECIMAL}, #{ITEM,jdbcType=DECIMAL}, #{FLAG,jdbcType=CHAR}, 
+      #{EVERYNUM,jdbcType=DECIMAL}, #{MANAGER,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.chenyuantech.lotterydraw.bean.DRAW_AWARD">
+    insert into DRAW_AWARD
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="ND != null">
+        ND,
+      </if>
+      <if test="AWARD_LEVEL != null">
+        AWARD_LEVEL,
+      </if>
+      <if test="AWARD != null">
+        AWARD,
+      </if>
+      <if test="AWARD_NUM != null">
+        AWARD_NUM,
+      </if>
+      <if test="ITEM != null">
+        ITEM,
+      </if>
+      <if test="FLAG != null">
+        FLAG,
+      </if>
+      <if test="EVERYNUM != null">
+        EVERYNUM,
+      </if>
+      <if test="MANAGER != null">
+        MANAGER,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="ND != null">
+        #{ND,jdbcType=DECIMAL},
+      </if>
+      <if test="AWARD_LEVEL != null">
+        #{AWARD_LEVEL,jdbcType=VARCHAR},
+      </if>
+      <if test="AWARD != null">
+        #{AWARD,jdbcType=VARCHAR},
+      </if>
+      <if test="AWARD_NUM != null">
+        #{AWARD_NUM,jdbcType=DECIMAL},
+      </if>
+      <if test="ITEM != null">
+        #{ITEM,jdbcType=DECIMAL},
+      </if>
+      <if test="FLAG != null">
+        #{FLAG,jdbcType=CHAR},
+      </if>
+      <if test="EVERYNUM != null">
+        #{EVERYNUM,jdbcType=DECIMAL},
+      </if>
+      <if test="MANAGER != null">
+        #{MANAGER,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.chenyuantech.lotterydraw.bean.DRAW_AWARDExample" resultType="java.lang.Long">
+    select count(*) from DRAW_AWARD
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update DRAW_AWARD
+    <set>
+      <if test="record.ND != null">
+        ND = #{record.ND,jdbcType=DECIMAL},
+      </if>
+      <if test="record.AWARD_LEVEL != null">
+        AWARD_LEVEL = #{record.AWARD_LEVEL,jdbcType=VARCHAR},
+      </if>
+      <if test="record.AWARD != null">
+        AWARD = #{record.AWARD,jdbcType=VARCHAR},
+      </if>
+      <if test="record.AWARD_NUM != null">
+        AWARD_NUM = #{record.AWARD_NUM,jdbcType=DECIMAL},
+      </if>
+      <if test="record.ITEM != null">
+        ITEM = #{record.ITEM,jdbcType=DECIMAL},
+      </if>
+      <if test="record.FLAG != null">
+        FLAG = #{record.FLAG,jdbcType=CHAR},
+      </if>
+      <if test="record.EVERYNUM != null">
+        EVERYNUM = #{record.EVERYNUM,jdbcType=DECIMAL},
+      </if>
+      <if test="record.MANAGER != null">
+        MANAGER = #{record.MANAGER,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update DRAW_AWARD
+    set ND = #{record.ND,jdbcType=DECIMAL},
+      AWARD_LEVEL = #{record.AWARD_LEVEL,jdbcType=VARCHAR},
+      AWARD = #{record.AWARD,jdbcType=VARCHAR},
+      AWARD_NUM = #{record.AWARD_NUM,jdbcType=DECIMAL},
+      ITEM = #{record.ITEM,jdbcType=DECIMAL},
+      FLAG = #{record.FLAG,jdbcType=CHAR},
+      EVERYNUM = #{record.EVERYNUM,jdbcType=DECIMAL},
+      MANAGER = #{record.MANAGER,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.chenyuantech.lotterydraw.bean.DRAW_AWARD">
+    update DRAW_AWARD
+    <set>
+      <if test="AWARD != null">
+        AWARD = #{AWARD,jdbcType=VARCHAR},
+      </if>
+      <if test="AWARD_NUM != null">
+        AWARD_NUM = #{AWARD_NUM,jdbcType=DECIMAL},
+      </if>
+      <if test="ITEM != null">
+        ITEM = #{ITEM,jdbcType=DECIMAL},
+      </if>
+      <if test="FLAG != null">
+        FLAG = #{FLAG,jdbcType=CHAR},
+      </if>
+      <if test="EVERYNUM != null">
+        EVERYNUM = #{EVERYNUM,jdbcType=DECIMAL},
+      </if>
+      <if test="MANAGER != null">
+        MANAGER = #{MANAGER,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ND = #{ND,jdbcType=DECIMAL}
+      and AWARD_LEVEL = #{AWARD_LEVEL,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.chenyuantech.lotterydraw.bean.DRAW_AWARD">
+    update DRAW_AWARD
+    set AWARD = #{AWARD,jdbcType=VARCHAR},
+      AWARD_NUM = #{AWARD_NUM,jdbcType=DECIMAL},
+      ITEM = #{ITEM,jdbcType=DECIMAL},
+      FLAG = #{FLAG,jdbcType=CHAR},
+      EVERYNUM = #{EVERYNUM,jdbcType=DECIMAL},
+      MANAGER = #{MANAGER,jdbcType=VARCHAR}
+    where ND = #{ND,jdbcType=DECIMAL}
+      and AWARD_LEVEL = #{AWARD_LEVEL,jdbcType=VARCHAR}
+  </update>
+</mapper>

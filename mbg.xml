@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+  PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+  "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+	<!-- 全局配置 -->
+	<context id="DB2Tables" targetRuntime="MyBatis3">
+		<!-- <plugin type="org.mybatis.generator.plugins.SerializablePlugin" /> -->
+		<plugin type="com.chenyuantech.lotterydraw.utils.SerializablePlugin" />
+		<plugin type="org.mybatis.generator.plugins.RenameExampleClassPlugin" />
+		<plugin type="org.mybatis.generator.plugins.ToStringPlugin" />
+		<commentGenerator>
+			<property name="suppressAllComments" value="true" />
+		</commentGenerator>
+		<jdbcConnection driverClass="oracle.jdbc.OracleDriver"
+			connectionURL="jdbc:oracle:thin:@192.168.60.30:1521:ORCL" userId="cycommon"
+			password="cycommon">
+		</jdbcConnection>
+		<javaTypeResolver>
+			<property name="forceBigDecimals" value="false" />
+		</javaTypeResolver>
+
+		<!-- 指定javaBean生成的位置 -->
+		<javaModelGenerator targetPackage="com.chenyuantech.lotterydraw.bean"
+			targetProject=".\src\main\java">
+			<property name="enableSubPackages" value="true" />
+			<property name="trimStrings" value="false" />
+		</javaModelGenerator>
+
+		<!--指定sql映射文件生成的位置 -->
+		<sqlMapGenerator targetPackage="mapper" targetProject=".\src\main\resources">
+			<property name="enableSubPackages" value="true" />
+		</sqlMapGenerator>
+
+		<!-- 指定dao接口生成的位置，mapper接口 -->
+		<javaClientGenerator type="XMLMAPPER"
+			targetPackage="com.chenyuantech.lotterydraw.dao" targetProject=".\src\main\java">
+			<property name="enableSubPackages" value="true" />
+		</javaClientGenerator>
+ 
+		<table tableName="DRAW_AWARD" domainObjectName="DRAW_AWARD">
+			<property name="useActualColumnNames" value="true" />
+		</table>
+		 
+		 
+
+
+
+
+ 
+
+
+	</context>
+</generatorConfiguration>

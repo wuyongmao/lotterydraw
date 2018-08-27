@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chenyuantech.lotterydraw.dao.DRAW_Ext_AWARDMapper">
+	<resultMap id="BaseResultMap" type="com.chenyuantech.lotterydraw.bean.DRAW_AWARD">
+		<id column="ND" jdbcType="DECIMAL" property="ND" />
+		<id column="AWARD_LEVEL" jdbcType="VARCHAR" property="AWARD_LEVEL" />
+		<result column="AWARD" jdbcType="VARCHAR" property="AWARD" />
+		<result column="AWARD_NUM" jdbcType="DECIMAL" property="AWARD_NUM" />
+		<result column="ITEM" jdbcType="DECIMAL" property="ITEM" />
+		<result column="FLAG" jdbcType="CHAR" property="FLAG" />
+		<result column="EVERYNUM" jdbcType="DECIMAL" property="EVERYNUM" />
+		<result column="MANAGER" jdbcType="VARCHAR" property="MANAGER" />
+	</resultMap>
+	  
+	<select id="selectDRAW_AWARDS"  
+		resultMap="BaseResultMap">
+
+		WITH rd AS (SELECT r.nd,r.award_level ,COUNT(1) nums FROM draw_record r
+		where  r.flag='Y'
+		GROUP BY r.nd,r.award_level )
+		SELECT a.nd, a.award_level, a.award, a.award_num - nvl(nums,0) AS
+		 AWARD_NUM  ,
+		a.item, a.flag, a.everynum, a.manager FROM DRAW_AWARD a LEFT JOIN rd ON
+		a.nd=rd.nd AND a.award_level=rd.award_level ORDER BY a.item
+
+
+	</select>
+</mapper>

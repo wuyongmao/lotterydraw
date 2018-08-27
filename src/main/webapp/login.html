@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" /> 
+<link rel="stylesheet" type="text/css" href="inc/plugins/bootstrap/3.3.5/css/bootstrap.min.css" media="all" /> 
+<link rel="icon" href="inc/images/cylogo.png" type="image/png">
+
+<link rel="stylesheet" type="text/css" href="inc/css/login.css" media="all" /> 
+<script type="text/javascript" src="inc/plugins/jquery/1.9.1/jquery-1.9.1.js"></script> 
+<script type="text/javascript" src="inc/plugins/bootstrap/3.3.5/js/bootstrap.min.js"></script> 
+<title>年度抽奖系统--登入</title>
+<script>
+	$(document).ready(function(){
+		$alert = $('#alert').hide();
+	    
+		// 登入验证，成功则导向系统首页
+		$("#loginButton").click(function() {
+			// /login/checklogin?ZX01=6700&PASSWORD=123456
+		   var oo={ ZX01:"",PASSWORD:""};
+			
+			oo.ZX01=$("#username").val();
+			oo.PASSWORD=$("#password").val();
+			
+ 			$.ajax({
+				type : "POST",
+				timeout : 10000, // 超时时间设置，单位毫秒 1000ms=1s
+				dataType : 'json', // 返回的数据格式
+				data :oo,
+				url : "user/checklogin",
+				success : function(data) {
+
+					if (data.code == "100") {
+
+						showAlert('登录成功!', 'success');
+
+					//	window.open("index.jsp", "_self", "");
+						window.open("index.html", "_self", "");
+
+					} else {
+						console.info(data);
+						showAlert(data.extend.error, 'danger');
+					}
+				}
+
+			});
+
+		});
+		
+		$("#loginform").keydown(function(event) {
+			if (event.keyCode == "13") {
+				$("#loginButton").click();
+			}
+		});
+	});
+	
+	
+	 
+	function showAlert(title, type) {
+		$alert.attr('class', 'alert alert-' + type || 'success').html(
+				'<i class="glyphicon glyphicon-check"></i> ' + title).show();
+		setTimeout(function() {
+			$alert.hide();
+		}, 500);
+	};
+</script>
+</head>
+<body>
+<div id="dengLu">
+<div id="loginLogo">
+	<img src="inc/img/loginLogo.png" alt="loginLogo">
+</div>
+<form id="loginform"  >
+  <span id="loginTitle">系统登入</span>
+  <div class="input-group" id="shuRuU">
+    <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
+    <input type="text" class="form-control" id="username" placeholder="请输入用户名" required autofocus>
+  </div>
+  <div class="input-group" id="shuRuP">
+    <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+    <input type="password" class="form-control" id="password" placeholder="请输入密码" required>
+  </div>
+  <div class="input-group" id="shuRuC">
+           <span id="alert" class="input-group-addon"></span>
+   </div>
+  <button type="button" class="btn btn-info" title="login" id="loginButton">login</button>
+</form>
+<div id="beiAH">
+	<span>©&nbsp;&nbsp;2017 中山辰元纺织科技有限公司 &nbsp;粤ICP备17082217号-1</span>
+</div>
+</div>
+</body>
+</html>
